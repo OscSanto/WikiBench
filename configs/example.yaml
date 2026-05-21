@@ -1,0 +1,23 @@
+# wikibench run configuration
+# Run with: wikibench run configs/example.yaml
+
+# Model served by local Ollama
+model: "llama3.2:3b"
+
+# Embedding model — must match what wikembed used to build the index
+embedding_model: "BAAI/bge-small-en-v1.5"
+
+# Retrieval method: dense | sparse | hybrid_rrf | structured
+retrieval: "hybrid_rrf"
+
+# Path to the wikembed output directory (contains faiss.index + chunks.db)
+index_dir: "/path/to/wikembed/output"
+
+# MedQA JSONL dataset path
+dataset_path: "/path/to/medqa/test_us.jsonl"
+
+# Number of questions to run (omit or set to null for full dataset)
+n_questions: 100
+
+# Number of chunks to retrieve per question
+top_k: 5
