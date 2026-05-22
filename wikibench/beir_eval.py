@@ -220,7 +220,7 @@ def evaluate(
     retrieval:       str           = "dense",
     embedding_model: str           = "BAAI/bge-small-en-v1.5",
     top_k:           int           = 100,
-    k_values:        list[int]     = (1, 3, 5, 10, 100),
+    k_values:        list[int]     = None,
     split:           str           = "test",
 ) -> dict:
     """Run BEIR evaluation.
@@ -228,6 +228,9 @@ def evaluate(
     Returns {metric: {k: score}} dict, e.g.:
       {"ndcg": {10: 0.412}, "recall": {100: 0.785}, "map": {10: 0.198}}
     """
+    if k_values is None:
+        k_values = [1, 3, 5, 10, 100]
+
     try:
         import pytrec_eval
     except ImportError:
