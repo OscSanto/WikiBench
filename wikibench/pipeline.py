@@ -173,6 +173,8 @@ class BenchmarkRun:
                 correct   = n_correct,
                 accuracy  = acc_so_far,
                 question  = idx,
+                predicted = predicted,
+                is_correct = is_correct,
             )
 
             if n_done % 10 == 0:

@@ -203,10 +203,7 @@ def load_qrels(qrels_path: str | Path) -> dict[str, dict[str, int]]:
 
 # ── Retrieval + evaluation ────────────────────────────────────────────────────
 
-def _chunks_to_doc_scores(
-    chunks: list[dict],
-    method: str,
-) -> dict[str, float]:
+def _chunks_to_doc_scores(chunks: list[dict]) -> dict[str, float]:
     """Aggregate per-chunk results to per-document scores (max pooling)."""
     doc_scores: dict[str, float] = {}
     for rank, chunk in enumerate(chunks, start=1):
@@ -263,7 +260,7 @@ def evaluate(
         if i % 50 == 0:
             print(f"  Querying {i}/{len(eval_qids)} …", end="\r", flush=True)
         chunks         = retriever.retrieve(retrieval, queries[qid])
-        run[qid]       = _chunks_to_doc_scores(chunks, retrieval)
+        run[qid]       = _chunks_to_doc_scores(chunks)
     print(f"  Queried {len(eval_qids)}/{len(eval_qids)}")
 
     retriever.close()
