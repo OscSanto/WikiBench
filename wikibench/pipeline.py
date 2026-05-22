@@ -104,8 +104,11 @@ class BenchmarkRun:
             except Exception as e:
                 print(f"  Warmup failed (non-fatal): {e}")
 
-        # Main loop
-        n_correct = 0
+        # Main loop — seed correct count from previously completed questions
+        prior_correct = con.execute(
+            "SELECT COUNT(*) FROM results WHERE run_id = ? AND is_correct = 1", (run_id,)
+        ).fetchone()[0]
+        n_correct = prior_correct
         n_done    = len(completed)
 
         for q in remaining:
@@ -166,7 +169,7 @@ class BenchmarkRun:
             })
 
             n_done += 1
-            acc_so_far = n_correct / (n_done - len(completed)) if (n_done - len(completed)) > 0 else 0.0
+            acc_so_far = n_correct / n_done if n_done > 0 else 0.0
             self._tick(
                 done      = n_done,
                 total     = total,
