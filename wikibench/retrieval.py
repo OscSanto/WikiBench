@@ -10,6 +10,7 @@ FAISS index stores chunk IDs as vector IDs (via IndexIDMap).
 """
 from __future__ import annotations
 
+import re
 import sqlite3
 from pathlib import Path
 from typing import Sequence
@@ -50,6 +51,14 @@ def _fetch_chunks(con: sqlite3.Connection, chunk_ids: Sequence[int]) -> list[dic
     ).fetchall()
     by_id = {r["id"]: dict(r) for r in rows}
     return [by_id[cid] for cid in chunk_ids if cid in by_id]
+
+
+# ── FTS helpers ───────────────────────────────────────────────────────────────
+
+def _safe_fts(query: str) -> str:
+    """Strip FTS5 operator characters so medical questions don't crash MATCH."""
+    words = re.findall(r'\w+', query)
+    return " ".join(words) if words else '""'
 
 
 # ── RRF ───────────────────────────────────────────────────────────────────────
@@ -98,7 +107,7 @@ class Retriever:
                 WHERE chunks_fts MATCH ?
                 ORDER BY rank          -- rank is negative BM25; ASC = best first
                 LIMIT ?""",
-            (query, self.top_k),
+            (_safe_fts(query), self.top_k),
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -119,7 +128,7 @@ class Retriever:
                 WHERE chunks_fts MATCH ?
                 ORDER BY rank
                 LIMIT ?""",
-            (query, fetch_n),
+            (_safe_fts(query), fetch_n),
         ).fetchall()
         sparse_ids = [r["id"] for r in rows]
 
